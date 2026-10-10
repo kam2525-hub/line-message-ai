@@ -43,7 +43,6 @@ const toneSelect = document.getElementById("tone");
 const emojiLevelSelect = document.getElementById("emoji-level");
 
 const previewTargetName = document.getElementById("preview-target-name");
-const receiverAvatar = receiverRow ? receiverRow.querySelector(".avatar") : null;
 const receiverRow = document.getElementById("receiver-row");
 const receiverBubbleText = document.getElementById("receiver-bubble-text");
 const senderBubbleText = document.getElementById("sender-bubble-text");
