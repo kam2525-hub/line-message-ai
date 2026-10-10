@@ -18,10 +18,10 @@
         <h1>LINEサポAI</h1>
         <span class="logo-sub">秒で決まる、好印象返信アシスタント</span>
       </div>
-      <span class="badge" id="mode-badge">モックモード中</span>
+      <span class="badge" id="mode-badge" onclick="openSettingsModal()">モックモード中</span>
     </div>
     <div class="header-actions">
-      <button type="button" id="open-settings-btn" class="icon-btn" title="API設定">
+      <button type="button" id="open-settings-btn" class="icon-btn" onclick="openSettingsModal()" title="API設定">
         ⚙️ Gemini設定
       </button>
     </div>
@@ -33,7 +33,7 @@
       <div class="panel-header">
         <div class="panel-header-top">
           <h2>シチュエーション入力</h2>
-          <button type="button" id="panel-settings-btn" class="sub-settings-btn">
+          <button type="button" id="panel-settings-btn" class="sub-settings-btn" onclick="openSettingsModal()">
             ⚙️ API設定
           </button>
         </div>
@@ -181,7 +181,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3>⚙️ Google Gemini API 設定</h3>
-        <button class="close-btn" id="close-settings-btn">×</button>
+        <button class="close-btn" id="close-settings-btn" onclick="closeSettingsModal()">×</button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">
@@ -231,6 +231,17 @@
   <!-- トースト通知 -->
   <div class="toast hidden" id="toast">コピーしました！</div>
 
-  <script src="app.js?v=1.0.1"></script>
+  <!-- インライン開閉制御（キャッシュ遅延の影響を100%防止） -->
+  <script>
+    function openSettingsModal() {
+      var modal = document.getElementById('settings-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeSettingsModal() {
+      var modal = document.getElementById('settings-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+  </script>
+  <script src="app.js?v=20261010-fix01"></script>
 </body>
 </html>
