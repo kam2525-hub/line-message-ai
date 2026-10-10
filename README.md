@@ -26,8 +26,24 @@
 
 ---
 
+## 🔑 Google Gemini APIキーの取得方法（完全無料・約1分）
+
+クレジットカード登録不要・完全無料で利用できます。
+
+1. **[Google AI Studio (API Keys)](https://aistudio.google.com/app/apikey)** にアクセスします。
+2. お手持ちの Google アカウントでログインします。
+3. 青いボタン **「Create API key（APIキーを作成）」** をクリックします。
+4. 「Create API key in new project（新しいプロジェクトで作成）」を選択します。
+5. 発行されたキー（`AIzaSy...` から始まる文字列）をコピーします。
+6. 本アプリ右上の **「⚙️ Gemini設定」** を開き、APIキー入力欄に貼り付けて「保存する」を押せば完了です！
+
+※ 本アプリでは、無料枠の回数上限が最も緩く動作が速い **`gemini-2.5-flash-lite`** を標準利用しています。
+
+---
+
 ## 🛠 技術スタック
 
 - HTML5 / CSS3 / Vanilla JavaScript
 - Google Gemini API (`gemini-2.5-flash-lite` / `gemini-3.5-flash-lite`)
 - ブラウザ `localStorage` (APIキーはクライアント側でのみ安全に保持)
+
