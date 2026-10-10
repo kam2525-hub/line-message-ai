@@ -63,3 +63,4 @@ AIエンジンにはGoogleの最新軽量モデル **Gemini Flash-Lite** を採�
 - **GitHub**: https://github.com/kam2525-hub/line-message-ai
 
 感想や「こんなシチュエーションも追加してほしい！」というリクエストがあれば、ぜひコメントで教えてもらえると嬉しいです！
+

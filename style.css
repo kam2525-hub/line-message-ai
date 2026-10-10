@@ -79,6 +79,11 @@ body {
   color: #065f46;
 }
 
+.header-actions {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
 .icon-btn {
   background: #f3f4f6;
   border: 1px solid var(--border-color);
@@ -86,12 +91,50 @@ body {
   padding: 8px 14px;
   font-size: 13px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  color: #374151;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .icon-btn:hover {
   background: #e5e7eb;
+}
+
+.icon-btn:active {
+  transform: scale(0.97);
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sub-settings-btn {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.15s;
+}
+
+.sub-settings-btn:hover {
+  background: #d1fae5;
+}
+
+.sub-settings-btn:active {
+  transform: scale(0.97);
 }
 
 /* メインコンテナ */
@@ -419,30 +462,41 @@ select:focus, textarea:focus, input:focus {
 .modal-content {
   background: #ffffff;
   border-radius: var(--radius);
-  width: 90%;
+  width: 92%;
   max-width: 520px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  margin: 16px;
 }
 
 .modal-header {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   color: var(--text-muted);
+  padding: 4px 8px;
+  line-height: 1;
+  touch-action: manipulation;
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-desc {
@@ -541,5 +595,89 @@ select:focus, textarea:focus, input:focus {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* スマホ最適化 (幅640px以下) */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .logo {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .logo-icon {
+    font-size: 22px;
+  }
+
+  .logo-titles h1 {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .logo-sub {
+    display: none; /* スマホでは省略してボタンの押し出しを防止 */
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .main-container {
+    margin: 12px auto;
+    padding: 0 10px;
+    gap: 16px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-group.half {
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 85vh;
+    margin: 10px;
+  }
+
+  .modal-body {
+    padding: 14px;
+  }
+
+  .modal-footer {
+    padding: 10px 14px;
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
 }
 

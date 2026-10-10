@@ -59,6 +59,7 @@ const toast = document.getElementById("toast");
 // 設定モーダル要素
 const modeBadge = document.getElementById("mode-badge");
 const openSettingsBtn = document.getElementById("open-settings-btn");
+const panelSettingsBtn = document.getElementById("panel-settings-btn");
 const closeSettingsBtn = document.getElementById("close-settings-btn");
 const settingsModal = document.getElementById("settings-modal");
 const geminiApiKeyInput = document.getElementById("gemini-api-key");
@@ -127,26 +128,44 @@ function updateTargetHeaderAndAvatar() {
 // バッジの更新
 function updateModeBadge(key, model) {
   if (key.trim()) {
-    modeBadge.textContent = `Gemini連携中 (${model})`;
+    modeBadge.textContent = "Gemini連携中";
+    modeBadge.title = `使用モデル: ${model}`;
     modeBadge.classList.add("active-api");
   } else {
-    modeBadge.textContent = "モックモード中";
+    modeBadge.textContent = "モック中";
+    modeBadge.title = "モック（ダミー）動作中";
     modeBadge.classList.remove("active-api");
   }
 }
 
 // イベントリスナーの登録
 function setupEventListeners() {
-  // モーダル開閉
-  openSettingsBtn.addEventListener("click", () => {
+  const openModal = () => {
     settingsModal.classList.remove("hidden");
-  });
-  closeSettingsBtn.addEventListener("click", () => {
+  };
+  const closeModal = () => {
     settingsModal.classList.add("hidden");
-  });
-  settingsModal.addEventListener("click", (e) => {
-    if (e.target === settingsModal) settingsModal.classList.add("hidden");
-  });
+  };
+
+  // モーダル開閉（ヘッダー、バッジ、入力パネル内ボタンすべて対応）
+  if (openSettingsBtn) {
+    openSettingsBtn.addEventListener("click", openModal);
+  }
+  if (panelSettingsBtn) {
+    panelSettingsBtn.addEventListener("click", openModal);
+  }
+  if (modeBadge) {
+    modeBadge.style.cursor = "pointer";
+    modeBadge.addEventListener("click", openModal);
+  }
+  if (closeSettingsBtn) {
+    closeSettingsBtn.addEventListener("click", closeModal);
+  }
+  if (settingsModal) {
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) closeModal();
+    });
+  }
 
   // モデル選択切り替え
   geminiModelSelect.addEventListener("change", () => {

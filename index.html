@@ -21,7 +21,7 @@
       <span class="badge" id="mode-badge">モックモード中</span>
     </div>
     <div class="header-actions">
-      <button id="open-settings-btn" class="icon-btn" title="API設定">
+      <button type="button" id="open-settings-btn" class="icon-btn" title="API設定">
         ⚙️ Gemini設定
       </button>
     </div>
@@ -31,7 +31,12 @@
     <!-- 左側：入力パネル -->
     <section class="panel input-panel">
       <div class="panel-header">
-        <h2>シチュエーション入力</h2>
+        <div class="panel-header-top">
+          <h2>シチュエーション入力</h2>
+          <button type="button" id="panel-settings-btn" class="sub-settings-btn">
+            ⚙️ API設定
+          </button>
+        </div>
         <p class="panel-desc">条件を選ぶだけで、LINEのトークに合わせた3パターンを瞬時に提案します。</p>
       </div>
 

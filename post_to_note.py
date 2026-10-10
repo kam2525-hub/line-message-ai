@@ -21,3 +21,4 @@ try:
     print("[OK] noteの下書き保存が完了しました！")
 except Exception as e:
     print(f"[エラー] {e}")
+
