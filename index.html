@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINEサポAI - メッセージ下書きアシスタント</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="logo">
+      <span class="logo-icon">💬</span>
+      <div class="logo-titles">
+        <h1>LINEサポAI</h1>
+        <span class="logo-sub">秒で決まる、好印象返信アシスタント</span>
+      </div>
+      <span class="badge" id="mode-badge">モックモード中</span>
+    </div>
+    <div class="header-actions">
+      <button id="open-settings-btn" class="icon-btn" title="API設定">
+        ⚙️ Gemini設定
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- 左側：入力パネル -->
+    <section class="panel input-panel">
+      <div class="panel-header">
+        <h2>シチュエーション入力</h2>
+        <p class="panel-desc">条件を選ぶだけで、LINEのトークに合わせた3パターンを瞬時に提案します。</p>
+      </div>
+
+      <form id="generate-form">
+        <!-- 相手との関係 -->
+        <div class="form-group">
+          <label for="relationship">相手との関係 <span class="required">*</span></label>
+          <select id="relationship" required>
+            <option value="気になる人・好きな人">気になる人・好きな人</option>
+            <option value="友達" selected>友達</option>
+            <option value="先輩・上司">先輩・上司</option>
+            <option value="同僚・後輩">同僚・後輩</option>
+            <option value="取引先・目上の人">取引先・目上の人</option>
+            <option value="家族">家族</option>
+          </select>
+        </div>
+
+        <!-- 相手からのメッセージ (任意) -->
+        <div class="form-group">
+          <label for="received-message">
+            相手から来たメッセージ <span class="optional">(返信の場合に入力)</span>
+          </label>
+          <textarea id="received-message" rows="2" placeholder="例: 最近バタバタしてて返信遅くなっちゃった！ごめんね💦"></textarea>
+        </div>
+
+        <!-- 伝えたいこと -->
+        <div class="form-group">
+          <label for="intended-message">あなたが伝えたいこと / 要件 <span class="required">*</span></label>
+          <textarea id="intended-message" rows="3" required placeholder="例: 気にしてないことを伝えつつ、落ち着いたらご飯行こうと誘いたい"></textarea>
+        </div>
+
+        <!-- トーン & 絵文字 -->
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="tone">全体のトーン</label>
+            <select id="tone">
+              <option value="自然・おすすめ" selected>自然・おすすめ</option>
+              <option value="親しみ・フランク">親しみ・フランク</option>
+              <option value="丁寧・気遣い">丁寧・気遣い</option>
+              <option value="短め・スマート">短め・スマート</option>
+            </select>
+          </div>
+          <div class="form-group half">
+            <label for="emoji-level">絵文字の量</label>
+            <select id="emoji-level">
+              <option value="自然に入れる" selected>自然に入れる (通常)</option>
+              <option value="控えめ・なし">控えめ・なし</option>
+              <option value="多め・明るく">多め・明るく ✨</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 生成ボタン -->
+        <button type="submit" id="generate-btn" class="primary-btn">
+          <span class="btn-text">✨ 3パターンを生成する</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+    </section>
+
+    <!-- 右側：プレビュー & 結果パネル -->
+    <section class="panel preview-panel">
+      <!-- パターン選択タブ -->
+      <div class="tabs-container">
+        <div class="tabs" id="pattern-tabs">
+          <button class="tab-btn active" data-index="0">パターンA: 自然</button>
+          <button class="tab-btn" data-index="1">パターンB: フランク</button>
+          <button class="tab-btn" data-index="2">パターンC: 気遣い</button>
+        </div>
+      </div>
+
+      <!-- スマホ風LINEトークプレビュー -->
+      <div class="phone-mockup">
+        <div class="phone-header">
+          <span class="phone-btn">‹</span>
+          <span class="chat-name" id="preview-target-name">友達 (トーク)</span>
+          <span class="phone-icons">🔍 ≡</span>
+        </div>
+
+        <div class="phone-chat-body" id="chat-body">
+          <!-- 相手のメッセージ吹き出し -->
+          <div class="chat-row receiver" id="receiver-row">
+            <div class="avatar">👤</div>
+            <div class="bubble-wrapper">
+              <div class="chat-bubble receiver-bubble" id="receiver-bubble-text">
+                最近バタバタしてて返信遅くなっちゃった！ごめんね💦
+              </div>
+            </div>
+          </div>
+
+          <!-- 自分のメッセージ吹き出し (選択中の生成案) -->
+          <div class="chat-row sender" id="sender-row">
+            <div class="bubble-meta">
+              <span class="read-status">既読</span>
+              <span class="chat-time" id="chat-time">12:34</span>
+            </div>
+            <div class="chat-bubble sender-bubble" id="sender-bubble-text">
+              全然気にしないで〜！お疲れさま！落ち着いたら息抜きに美味しいものでも食べ行こう〜！空いてる日あったら教えてね☺️
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- パターンの解説 & コピーアクション -->
+      <div class="result-details" id="result-details">
+        <div class="point-box">
+          <span class="point-badge">解説ポイント</span>
+          <p id="point-text">相手の負担にならないよう優しく気遣いつつ、サラッと次のお誘いにつなげる自然な文面です。</p>
+        </div>
+        <div class="action-bar">
+          <span class="char-count" id="char-count">文字数: 58文字</span>
+          <button id="copy-btn" class="copy-btn">
+            📋 この文面をコピー
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 設定モーダル (Gemini APIキー & 回数の多いFlash-Liteモデル設定) -->
+  <div class="modal-overlay hidden" id="settings-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ Google Gemini API 設定</h3>
+        <button class="close-btn" id="close-settings-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Google AI Studioで取得したAPIキーを入力すると、リアルタイムAI生成に切り替わります。<br>
+          ※空のままでもモック（ダミーデータ）ですぐに動かせます。キーは端末のブラウザ内（localStorage）にのみ保存されます。
+        </p>
+
+        <div class="form-group">
+          <label for="gemini-api-key">Gemini API Key</label>
+          <input type="password" id="gemini-api-key" placeholder="AIzaSy..." autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="gemini-model-select">
+            使用モデル <span class="tip-tag">回数が多いFlash-Lite推奨</span>
+          </label>
+          <select id="gemini-model-select">
+            <option value="gemini-2.5-flash-lite" selected>gemini-2.5-flash-lite (回数多くて最速・おすすめ)</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (軽量最新)</option>
+            <option value="gemini-3.8-flash">gemini-3.8-flash (標準Flash)</option>
+            <option value="custom">手動入力（自由に入力）</option>
+          </select>
+        </div>
+
+        <div class="form-group hidden" id="custom-model-group">
+          <label for="gemini-custom-model">カスタムモデル名</label>
+          <input type="text" id="gemini-custom-model" placeholder="例: gemini-2.5-flash-lite">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="clear-key-btn" class="secondary-btn">キー削除 (モックへ)</button>
+        <button id="save-key-btn" class="primary-btn">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div class="toast hidden" id="toast">コピーしました！</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
