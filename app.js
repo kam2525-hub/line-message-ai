@@ -35,12 +35,15 @@ const btnText = generateBtn.querySelector(".btn-text");
 const spinner = generateBtn.querySelector(".spinner");
 
 const relationshipSelect = document.getElementById("relationship");
+const myGenderSelect = document.getElementById("my-gender");
+const targetGenderSelect = document.getElementById("target-gender");
 const receivedMessageInput = document.getElementById("received-message");
 const intendedMessageInput = document.getElementById("intended-message");
 const toneSelect = document.getElementById("tone");
 const emojiLevelSelect = document.getElementById("emoji-level");
 
 const previewTargetName = document.getElementById("preview-target-name");
+const receiverAvatar = receiverRow ? receiverRow.querySelector(".avatar") : null;
 const receiverRow = document.getElementById("receiver-row");
 const receiverBubbleText = document.getElementById("receiver-bubble-text");
 const senderBubbleText = document.getElementById("sender-bubble-text");
@@ -97,7 +100,28 @@ function loadSettings() {
     customModelGroup.classList.remove("hidden");
   }
 
+  // 性別のロード
+  const savedMyGender = localStorage.getItem("line_ai_my_gender") || "男性";
+  const savedTargetGender = localStorage.getItem("line_ai_target_gender") || "女性";
+  myGenderSelect.value = savedMyGender;
+  targetGenderSelect.value = savedTargetGender;
+  updateTargetHeaderAndAvatar();
+
   updateModeBadge(savedKey, savedModel);
+}
+
+// 相手のヘッダー表示とアバターの更新
+function updateTargetHeaderAndAvatar() {
+  const rel = relationshipSelect.value;
+  const targetGender = targetGenderSelect.value;
+  previewTargetName.textContent = `${rel} (トーク)`;
+
+  const avatarEl = document.querySelector(".receiver .avatar");
+  if (avatarEl) {
+    if (targetGender === "女性") avatarEl.textContent = "👩";
+    else if (targetGender === "男性") avatarEl.textContent = "👨";
+    else avatarEl.textContent = "👤";
+  }
 }
 
 // バッジの更新
@@ -178,9 +202,14 @@ function setupEventListeners() {
     }
   });
 
-  // 相手との関係変更連動
-  relationshipSelect.addEventListener("change", () => {
-    previewTargetName.textContent = `${relationshipSelect.value} (トーク)`;
+  // 相手との関係・性別変更連動
+  relationshipSelect.addEventListener("change", updateTargetHeaderAndAvatar);
+  targetGenderSelect.addEventListener("change", () => {
+    localStorage.setItem("line_ai_target_gender", targetGenderSelect.value);
+    updateTargetHeaderAndAvatar();
+  });
+  myGenderSelect.addEventListener("change", () => {
+    localStorage.setItem("line_ai_my_gender", myGenderSelect.value);
   });
 
   // コピーボタン
@@ -214,6 +243,8 @@ function renderPreview() {
 // 生成処理
 async function handleGenerate() {
   const relationship = relationshipSelect.value;
+  const myGender = myGenderSelect.value;
+  const targetGender = targetGenderSelect.value;
   const received = receivedMessageInput.value.trim();
   const intended = intendedMessageInput.value.trim();
   const tone = toneSelect.value;
@@ -227,11 +258,11 @@ async function handleGenerate() {
   try {
     if (apiKey) {
       // 本物のGoogle Gemini API呼び出し
-      currentPatterns = await callGeminiAPI(apiKey, model, { relationship, received, intended, tone, emoji });
+      currentPatterns = await callGeminiAPI(apiKey, model, { relationship, myGender, targetGender, received, intended, tone, emoji });
     } else {
       // モックデータ生成（1秒待機でリアルなレスポンス感を演出）
       await new Promise(r => setTimeout(r, 900));
-      currentPatterns = generateMockPatterns({ relationship, received, intended, tone, emoji });
+      currentPatterns = generateMockPatterns({ relationship, myGender, targetGender, received, intended, tone, emoji });
     }
 
     selectedPatternIndex = 0;
@@ -253,12 +284,18 @@ async function callGeminiAPI(apiKey, model, params) {
   const prompt = `あなたはチャット（LINE）コミュニケーションの達人です。
 ユーザーの状況に合わせて、相手が読みやすく、好印象で返信しやすいLINEメッセージ案を3パターン（自然・フランク・気遣い）作成してください。
 
-【条件】
+【状況設定】
+- 送信者（あなた）の性別: ${params.myGender}
+- 送信相手の性別: ${params.targetGender}
 - 相手との関係: ${params.relationship}
 ${params.received ? `- 相手から届いたメッセージ: "${params.received}"` : "- 新規送信（相手からの直前メッセージなし）"}
 - 自分が伝えたいこと / 要件: "${params.intended}"
 - 希望トーン: ${params.tone}
 - 絵文字の使用量: ${params.emoji}
+
+【性別を意識した表現ルール】
+- 送信者（${params.myGender}）と相手（${params.targetGender}）の組み合わせに応じた自然な語尾、テンション、絵文字のトーン、距離感にしてください。
+- 男性の場合は爽やかさ・誠実さ・重くならない軽快さ、女性の場合は柔らかさ・親しみやすさ・愛嬌など、リアルなLINEの口調を再現してください。
 
 【出力フォーマット制約】
 必ず以下のJSONスキーマに従ったJSONのみを出力してください。Markdownコードブロックを含めても構いません。
@@ -346,6 +383,57 @@ function generateMockPatterns(params) {
         point: "丁寧語と敬語を徹底し、目上の方や取引先に送っても失礼のない万全の文面です。"
       }
     ];
+  }
+
+  // モックの文面生成（性別ニュアンスの反映）
+  const isMale = params.myGender === "男性";
+  const isFemale = params.myGender === "女性";
+  const targetIsFemale = params.targetGender === "女性";
+
+  if (params.relationship === "気になる人・好きな人") {
+    if (isMale && targetIsFemale) {
+      return [
+        {
+          id: "A",
+          label: "自然・おすすめ",
+          text: `返信ありがとう！最近忙しかったんだね、お疲れさま！\n落ち着いたら息抜きに美味しいものでも食べに行かない？行きたいお店見つけておくよ😊`,
+          point: "誠実で頼もしさを感じさせつつ、相手のペースを尊重した好印象なお誘い文面です。"
+        },
+        {
+          id: "B",
+          label: "親しみ・フランク",
+          text: `お疲れさま！全然気にしないでね！\n${params.intended}ってどうかな？空いてる日あったら気軽に教えて〜✨`,
+          point: "重くならず爽やかに、断られても気まずくならないスマートな文面です。"
+        },
+        {
+          id: "C",
+          label: "丁寧・気遣い",
+          text: `忙しいのに返信くれてありがとう！大変だったね。\n${params.intended}について、無理のないタイミングで教えてもらえると嬉しいな。体調気をつけてね！`,
+          point: "体調への気遣いを添えて、優しさと安心感をアピールする大人な文面です。"
+        }
+      ];
+    } else if (isFemale) {
+      return [
+        {
+          id: "A",
+          label: "自然・おすすめ",
+          text: `返信ありがとう〜！お疲れさま！\n落ち着いたら息抜きに美味しいご飯でも行こ〜！都合いい日あったら教えてね☺️${emojiChar}`,
+          point: "親しみやすく柔らかい雰囲気で、相手が返信しやすい王道のお誘い文面です。"
+        },
+        {
+          id: "B",
+          label: "親しみ・フランク",
+          text: `お疲れさま！全然大丈夫だよ〜！\n${params.intended}行きたいな！タイミング合うとき声かけてね✨`,
+          point: "可愛げと明るさを出しつつ、相手のプレッシャーをゼロにする軽快な文面です。"
+        },
+        {
+          id: "C",
+          label: "丁寧・気遣い",
+          text: `忙しいのに連絡くれてありがとう！\n${params.intended}、落ち着いたときにゆっくり話せたら嬉しいです。無理しないでね！`,
+          point: "控えめで上品な気遣いの中に、さりげない好意を伝える文面です。"
+        }
+      ];
+    }
   }
 
   return [
